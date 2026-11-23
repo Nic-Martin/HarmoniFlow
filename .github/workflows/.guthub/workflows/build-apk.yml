@@ -1,0 +1,42 @@
+name: Build HarmoniFlow APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev python3-pip
+
+      - name: Install Buildozer and Cython
+        run: |
+          python3 -m pip install --upgrade pip wheel setuptools
+          pip install --upgrade buildozer cython==0.29.34
+
+      - name: Cache Buildozer & SDK/NDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            .buildozer
+          key: buildozer-android-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            buildozer-android-${{ runner.os }}-
+
+      - name: Build APK with Buildozer
+        run: buildozer android debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmoniflow-debug-apk
+          path: bin/*.apk
