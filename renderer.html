@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HarmoniFlow Score Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.4/build/opensheetmusicdisplay.min.js"></script>
+    <style>
+        body {
+            background-color: #f4f4f9;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        .top-panel,
+        #renderer-status,
+        #part-controls {
+            max-width: 900px;
+            margin: 12px auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .score-meta-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #1e3a8a;
+        }
+
+        .score-song-title {
+            margin: 0 0 6px 0;
+            font-size: 24px;
+            color: #0f172a;
+        }
+
+        .score-meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 14px;
+            color: #334155;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .meta-badge {
+            background: #eff6ff;
+            color: #1e3a8a;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-weight: bold;
+        }
+
+        .chords-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 14px;
+        }
+
+        .chords-list {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .chord-chip {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 3px 9px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        #renderer-status {
+            color: #444;
+        }
+
+        #part-controls {
+            display: none;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        #instrument-buttons {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .part-btn,
+        .utility-btn {
+            border: 1px solid #cbd5e1;
+            background-color: #ffffff;
+            color: #1e293b;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .part-btn.active {
+            background-color: #1e3a8a;
+            border-color: #1e3a8a;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .utility-btn {
+            background-color: #e2e8f0;
+            font-weight: bold;
+        }
+
+        #osmd-canvas {
+            padding: 20px;
+            background: white;
+            max-width: 900px;
+            margin: 20px auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .controls-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .export-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .export-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        @media print {
+            @page {
+                margin: 12mm;
+            }
+
+            .controls-container,
+            .export-btn,
+            button,
+            nav,
+            #part-controls,
+            #renderer-status {
+                display: none !important;
+            }
+
+            body,
+            html {
+                background: white !important;
+                margin: 0;
+                padding: 0;
+            }
+
+            .score-meta-card {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+                margin-bottom: 12px !important;
+            }
+
+            #osmd-canvas {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            canvas,
+            svg {
+                page-break-inside: avoid !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="controls-container">
+        <button id="export-button" class="export-btn"
+                onclick="exportToPDF()" disabled>
+            Save as PDF
+        </button>
+    </div>
+
+    <div class="top-panel">
+        <div class="score-meta-card" id="score-meta-card">
+            <h1 class="score-song-title" id="display-song-title">Loading Song…</h1>
+            <div class="score-meta-row">
+                <span class="meta-badge" id="display-ensemble">Ensemble: —</span>
+                <span id="display-composer">Composer: —</span>
+                <span id="display-key">Key: —</span>
+                <span id="display-tempo">Tempo: —</span>
+                <span id="display-parts-count">Parts: —</span>
+            </div>
+            <div class="chords-box" id="chords-box">
+                <strong>Chords:</strong>
+                <div class="chords-list" id="display-chords">
+                    <span style="color:#64748b;">Reading score harmony…</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="renderer-status" role="status">Loading score…</div>
+
+    <div id="part-controls" aria-label="Band instrument part visibility">
+        <strong>Band Parts:</strong>
+        <div id="instrument-buttons"></div>
+        <button type="button" id="show-all-parts-btn" class="utility-btn">Show All</button>
+    </div>
+
+    <div id="osmd-canvas"></div>
+
+    <script>
+        window.xmlMeta = {
+            title: "",
+            ensemble: "",
+            composer: "",
+            key: "",
+            tempo: "",
+            chords: [],
+            partNames: []
+        };
+
+        function exportToPDF() {
+            if (!window.scoreReady) return;
+            window.print();
+        }
+
+        function cleanFilenameTitle(xmlFile) {
+            if (!xmlFile) return "";
+            let base = decodeURIComponent(xmlFile).split(/[\\/]/).pop() || "";
+            base = base.replace(/\.(musicxml|xml)$/i, "");
+            base = base.replace(/^(arranged_(drum_and_bugle_corps|symphony_orchestra|string_quintet|marching_band)_|converted_)/i, "");
+            base = base.replace(/_(drum_and_bugle_corps|symphony_orchestra|string_quintet|marching_band)$/i, "");
+            base = base.replace(/_/g, " ").trim();
+            if (!base || /^new score(\s*\d+)?$/i.test(base)) return "";
+            return base;
+        }
+
+        function fifthsToKeyName(fifths) {
+            const map = {
+                "-7": "Cb Major", "-6": "Gb Major", "-5": "Db Major", "-4": "Ab Major",
+                "-3": "Eb Major", "-2": "Bb Major", "-1": "F Major", "0": "C Major",
+                "1": "G Major", "2": "D Major", "3": "A Major", "4": "E Major",
+                "5": "B Major", "6": "F# Major", "7": "C# Major"
+            };
+            return map[String(fifths)] || "C Major";
+        }
+
+        function parseMusicXmlMetadata(xmlText, xmlFile) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xmlText, "application/xml");
+
+            const workTitle = doc.querySelector("work > work-title")?.textContent?.trim() || "";
+            const movementTitle = doc.querySelector("movement-title")?.textContent?.trim() || "";
+            const composer = doc.querySelector('identification > creator[type="composer"]')?.textContent?.trim() || "";
+
+            let title = workTitle;
+            if (!title || /^new score$/i.test(title)) {
+                title = (movementTitle && !/^new score$/i.test(movementTitle))
+                    ? movementTitle
+                    : cleanFilenameTitle(xmlFile);
+            }
+
+            let ensemble = "";
+            if (/arrangement$/i.test(movementTitle)) {
+                ensemble = movementTitle.replace(/\s*arrangement$/i, "").trim();
+            } else {
+                const lowerFile = decodeURIComponent(xmlFile || "").toLowerCase();
+                if (lowerFile.includes("drum_and_bugle")) ensemble = "Drum and Bugle Corps";
+                else if (lowerFile.includes("symphony_orchestra")) ensemble = "Symphony Orchestra";
+                else if (lowerFile.includes("string_quintet")) ensemble = "String Quintet";
+                else if (lowerFile.includes("marching_band")) ensemble = "Marching Band";
+            }
+
+            const fifthsEl = doc.querySelector("attributes > key > fifths");
+            const key = fifthsEl ? fifthsToKeyName(fifthsEl.textContent.trim()) : "";
+
+            const soundTempo = doc.querySelector("sound[tempo]")?.getAttribute("tempo");
+            const perMinute = doc.querySelector("metronome > per-minute")?.textContent?.trim();
+            const bpm = soundTempo || perMinute;
+            const tempo = bpm ? `${Math.round(Number(bpm))} BPM` : "";
+
+            const partNames = [];
+            doc.querySelectorAll("part-list > score-part").forEach((sp, idx) => {
+                const pName = sp.querySelector("part-name")?.textContent?.trim();
+                const iName = sp.querySelector("score-instrument > instrument-name")?.textContent?.trim();
+                const chosen = (pName && !/^P[0-9a-f]{10,}$/i.test(pName))
+                    ? pName
+                    : (iName || `Band Part ${idx + 1}`);
+                partNames.push(chosen);
+            });
+
+            const chords = [];
+            doc.querySelectorAll("harmony").forEach(h => {
+                const step = h.querySelector("root > root-step")?.textContent?.trim() || "";
+                const alter = h.querySelector("root > root-alter")?.textContent?.trim() || "0";
+                const kind = h.querySelector("kind")?.getAttribute("text")
+                    || h.querySelector("kind")?.textContent?.trim()
+                    || "";
+                if (step) {
+                    const accidental = alter === "1" ? "#" : (alter === "-1" ? "b" : "");
+                    const cleanKind = (kind === "major" || kind === "none") ? "" : (kind === "minor" ? "m" : kind);
+                    const label = `${step}${accidental}${cleanKind}`;
+                    if (!chords.length || chords[chords.length - 1] !== label) {
+                        chords.push(label);
+                    }
+                }
+            });
+
+            window.xmlMeta = { title, ensemble, composer, key, tempo, chords, partNames };
+        }
+
+        function getInstrumentLabel(inst, index) {
+            if (window.xmlMeta.partNames && window.xmlMeta.partNames[index]) {
+                return window.xmlMeta.partNames[index];
+            }
+            const rawName = (inst && (inst.Name || inst.NameLabelText || inst.IdString))
+                ? String(inst.Name || inst.NameLabelText || inst.IdString).trim()
+                : "";
+            if (rawName && !/^P[0-9a-f]{10,}$/i.test(rawName)) {
+                return rawName;
+            }
+            return `Band Part ${index + 1}`;
+        }
+
+        function renderChords(chordsParam) {
+            const chordsContainer = document.getElementById("display-chords");
+            if (!chordsContainer) return;
+
+            const raw = (chordsParam || "").trim();
+            let items = raw ? raw.split(/[,|]/).map(s => s.trim()).filter(Boolean) : [];
+            if (!items.length && window.xmlMeta.chords.length) {
+                items = window.xmlMeta.chords;
+            }
+
+            if (!items.length) {
+                chordsContainer.innerHTML = '<span style="color:#64748b;">No explicit chord symbols in this XML (pass &amp;chords=C,G,Am,F or export harmony)</span>';
+                return;
+            }
+
+            chordsContainer.innerHTML = "";
+            items.forEach(chord => {
+                const chip = document.createElement("span");
+                chip.className = "chord-chip";
+                chip.textContent = chord;
+                chordsContainer.appendChild(chip);
+            });
+        }
+
+        function populateMetadata(params, sheet) {
+            const titleEl = document.getElementById("display-song-title");
+            const ensembleEl = document.getElementById("display-ensemble");
+            const composerEl = document.getElementById("display-composer");
+            const keyEl = document.getElementById("display-key");
+            const tempoEl = document.getElementById("display-tempo");
+            const partsCountEl = document.getElementById("display-parts-count");
+
+            const sheetTitle = (sheet && sheet.TitleString && !/^new score$/i.test(sheet.TitleString.trim()))
+                ? String(sheet.TitleString).trim()
+                : "";
+            const sheetComposer = (sheet && sheet.ComposerString) ? String(sheet.ComposerString).trim() : "";
+            const instruments = (sheet && sheet.Instruments) ? sheet.Instruments : [];
+
+            const finalTitle = (params.get("title") || window.xmlMeta.title || sheetTitle || "Arranged Band Score").trim();
+            const finalEnsemble = (params.get("ensemble") || window.xmlMeta.ensemble || "Full Band Ensemble").trim();
+            const finalComposer = (params.get("composer") || window.xmlMeta.composer || sheetComposer || "HarmoniFlow AI Arranger").trim();
+            const finalKey = (params.get("key") || window.xmlMeta.key || "C Major").trim();
+            const finalTempo = (params.get("tempo") || window.xmlMeta.tempo || "120 BPM").trim();
+
+            document.title = `${finalTitle} - HarmoniFlow Score Viewer`;
+            titleEl.textContent = finalTitle;
+            ensembleEl.textContent = `Ensemble: ${finalEnsemble}`;
+            composerEl.textContent = `Composer: ${finalComposer}`;
+            keyEl.textContent = `Key: ${finalKey}`;
+            tempoEl.textContent = `Tempo: ${finalTempo}`;
+            partsCountEl.textContent = `Parts: ${instruments.length || window.xmlMeta.partNames.length || 1}`;
+
+            renderChords(params.get("chords"));
+        }
+
+        function updatePartButtonStates() {
+            const container = document.getElementById("instrument-buttons");
+            if (!container || !window.osmd || !window.osmd.sheet) return;
+            const instruments = window.osmd.sheet.Instruments || [];
+            Array.from(container.children).forEach((btn, idx) => {
+                const inst = instruments[idx];
+                if (!inst) return;
+                const isVisible = inst.Visible !== false;
+                const label = getInstrumentLabel(inst, idx);
+                btn.classList.toggle("active", isVisible);
+                btn.textContent = `${isVisible ? "✓" : "✕"} ${label}`;
+            });
+        }
+
+        function renderInstrumentControls() {
+            const bar = document.getElementById("part-controls");
+            const container = document.getElementById("instrument-buttons");
+            const showAllBtn = document.getElementById("show-all-parts-btn");
+            if (!bar || !container || !showAllBtn || !window.osmd || !window.osmd.sheet) return;
+
+            const instruments = window.osmd.sheet.Instruments || [];
+            container.innerHTML = "";
+
+            if (instruments.length <= 1) {
+                bar.style.display = "none";
+                return;
+            }
+
+            bar.style.display = "flex";
+            instruments.forEach((inst, idx) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "part-btn";
+                btn.addEventListener("click", () => {
+                    const currentVisible = inst.Visible !== false;
+                    const visibleCount = instruments.filter(item => item.Visible !== false).length;
+                    if (currentVisible && visibleCount === 1) {
+                        return;
+                    }
+                    inst.Visible = !currentVisible;
+                    updatePartButtonStates();
+                    window.osmd.render();
+                });
+                container.appendChild(btn);
+            });
+
+            showAllBtn.onclick = () => {
+                instruments.forEach(inst => {
+                    inst.Visible = true;
+                });
+                updatePartButtonStates();
+                window.osmd.render();
+            };
+
+            updatePartButtonStates();
+        }
+
+        window.onload = async function () {
+            const status = document.getElementById("renderer-status");
+            const exportButton = document.getElementById("export-button");
+            window.scoreReady = false;
+
+            const params = new URLSearchParams(window.location.search);
+            populateMetadata(params, null);
+
+            if (!window.opensheetmusicdisplay) {
+                status.textContent =
+                    "The score renderer could not load. Check your internet connection and reload this page.";
+                return;
+            }
+
+            const xmlFile = params.get("file");
+
+            if (!xmlFile) {
+                status.textContent =
+                    "No score file was provided. Open renderer.html with ?file=your-score.musicxml.";
+                return;
+            }
+
+            try {
+                const resp = await fetch(xmlFile);
+                if (resp.ok) {
+                    const xmlText = await resp.text();
+                    parseMusicXmlMetadata(xmlText, xmlFile);
+                    populateMetadata(params, null);
+                }
+            } catch (e) {
+                console.warn("Could not pre-fetch XML metadata:", e);
+            }
+
+            window.osmd =
+                new opensheetmusicdisplay.OpenSheetMusicDisplay("osmd-canvas", {
+                    autoResize: true,
+                    backend: "svg",
+                    drawTitle: true,
+                    drawSubtitle: true,
+                    drawLyrics: true,
+                    drawFingerings: true,
+                    fingeringPosition: "above",
+                    drawChordSymbols: true,
+                    chordSymbolStyle: "standard"
+                });
+
+            window.osmd.load(xmlFile)
+                .then(() => {
+                    window.osmd.Zoom = window.innerWidth < 768 ? 0.65 : 1.0;
+                    window.osmd.render();
+                    populateMetadata(params, window.osmd.sheet);
+                    renderInstrumentControls();
+                    window.scoreReady = true;
+                    exportButton.disabled = false;
+                    status.textContent =
+                        "Score ready. Choose Save as PDF to open your device's print or save options.";
+                })
+                .catch(error => {
+                    status.textContent =
+                        "Could not load the MusicXML score. Check that the file URL is reachable.";
+                    console.error("Error loading/rendering score:", error);
+                });
+        };
+    </script>
+</body>
+</html>

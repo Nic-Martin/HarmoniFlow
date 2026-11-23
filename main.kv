@@ -1,0 +1,984 @@
+ScreenManager:
+    id: screen_manager
+    LoginScreen:
+    RegisterScreen:
+    ForgotPasswordScreen:
+    ModeSelectionScreen:
+    DashboardScreen:
+    CompositionWizardScreen:
+    AudioConverterScreen:
+    NoteGeneratorScreen:
+    ProfileScreen:
+    SheetViewerScreen:
+    AdminDashboardScreen:
+    PracticeScheduleScreen:
+
+<LoginScreen>:
+    name: 'login'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 30
+        spacing: 15
+        Label:
+            text: 'HarmoniFlow: Security Gateway'
+            font_size: '24sp'
+            bold: True
+            size_hint_y: None
+            height: 50
+        TextInput:
+            id: username_input
+            hint_text: 'Username or Gmail'
+            multiline: False
+            size_hint_y: None
+            height: 45
+        TextInput:
+            id: password_input
+            hint_text: 'Password'
+            password: True
+            multiline: False
+            size_hint_y: None
+            height: 45
+        Label:
+            id: error_label
+            text: ''
+            color: (1, 0, 0, 1)
+            size_hint_y: None
+            height: 30
+        Button:
+            text: 'Login'
+            size_hint_y: None
+            height: 50
+            on_press: root.verify_login()
+        Button:
+            text: 'Forgot Password?'
+            background_color: (0.4, 0.4, 0.4, 1)
+            size_hint_y: None
+            height: 40
+            on_press: root.manager.current = 'forgot_password'
+        Button:
+            text: 'Create an Account'
+            background_color: (0.2, 0.6, 0.8, 1)
+            size_hint_y: None
+            height: 45
+            on_press: root.manager.current = 'register'
+
+<ForgotPasswordScreen>:
+    name: 'forgot_password'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 25
+        spacing: 12
+        Label:
+            text: 'Gmail Verification Reset'
+            font_size: '22sp'
+            bold: True
+            size_hint_y: None
+            height: 40
+        TextInput:
+            id: reset_username_email
+            hint_text: 'Username or Registered Gmail *'
+            multiline: False
+            size_hint_y: None
+            height: 45
+        Button:
+            text: '📧 Send 6-Digit Code to Gmail'
+            size_hint_y: None
+            height: 45
+            background_color: (0.15, 0.55, 0.85, 1)
+            on_press: root.request_otp()
+        TextInput:
+            id: reset_otp_input
+            hint_text: 'Enter 6-Digit Gmail OTP Code'
+            multiline: False
+            size_hint_y: None
+            height: 45
+        TextInput:
+            id: reset_new_password
+            hint_text: 'Enter New Password'
+            password: True
+            multiline: False
+            size_hint_y: None
+            height: 45
+        Label:
+            id: reset_status
+            text: ''
+            color: (0.2, 0.8, 0.4, 1)
+            size_hint_y: None
+            height: 30
+        Button:
+            text: 'Verify OTP & Set New Password'
+            size_hint_y: None
+            height: 45
+            background_color: (0.15, 0.6, 0.35, 1)
+            on_press: root.submit_password_reset()
+        Button:
+            text: 'Back to Login'
+            size_hint_y: None
+            height: 40
+            background_color: (0.5, 0.5, 0.5, 1)
+            on_press: root.manager.current = 'login'
+
+<RegisterScreen>:
+    name: 'register'
+    ScrollView:
+        do_scroll_x: False
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 20
+            spacing: 10
+            size_hint_y: None
+            height: self.minimum_height
+            Label:
+                text: 'Account Registration'
+                font_size: '22sp'
+                bold: True
+                size_hint_y: None
+                height: 40
+            TextInput:
+                id: reg_username
+                hint_text: 'Choose Username *'
+                multiline: False
+                size_hint_y: None
+                height: 45
+            TextInput:
+                id: reg_email
+                hint_text: 'Gmail Address * (e.g. user@gmail.com)'
+                multiline: False
+                size_hint_y: None
+                height: 45
+            TextInput:
+                id: reg_fullname
+                hint_text: 'Full Name *'
+                multiline: False
+                size_hint_y: None
+                height: 45
+            TextInput:
+                id: reg_password
+                hint_text: 'Password *'
+                password: True
+                multiline: False
+                size_hint_y: None
+                height: 45
+            TextInput:
+                id: reg_rank
+                hint_text: 'Rank / Skill Level (e.g. Expert)'
+                multiline: False
+                size_hint_y: None
+                height: 45
+            TextInput:
+                id: reg_instruments
+                hint_text: 'Number of Instruments Played'
+                input_filter: 'int'
+                multiline: False
+                size_hint_y: None
+                height: 45
+            TextInput:
+                id: reg_birthdate
+                hint_text: 'Birthdate * (YYYY-MM-DD)'
+                multiline: False
+                size_hint_y: None
+                height: 45
+            Label:
+                id: reg_status
+                text: ''
+                color: (0, 1, 0, 1)
+                size_hint_y: None
+                height: 40
+            Button:
+                id: signup_send_btn
+                text: 'Send Gmail Verification Code'
+                size_hint_y: None
+                height: 45
+                on_press: root.register_user()
+            TextInput:
+                id: reg_otp
+                hint_text: 'Enter 6-Digit Gmail Verification Code'
+                input_filter: 'int'
+                multiline: False
+                size_hint_y: None
+                height: 45
+            Button:
+                id: signup_verify_btn
+                text: 'Verify Code & Create Account'
+                size_hint_y: None
+                height: 45
+                background_color: (0.15, 0.6, 0.35, 1)
+                on_press: root.verify_signup()
+            Button:
+                text: 'Back to Login'
+                size_hint_y: None
+                height: 40
+                on_press: root.manager.current = 'login'
+
+<ModeSelectionScreen>:
+    name: 'mode_selection'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 30
+        spacing: 20
+
+        Label:
+            text: 'HarmoniFlow Workspace'
+            font_size: '26sp'
+            bold: True
+            size_hint_y: None
+            height: 40
+
+        Label:
+            text: 'Select your operational workflow:'
+            font_size: '16sp'
+            color: (0.7, 0.7, 0.7, 1)
+            size_hint_y: None
+            height: 25
+
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 15
+            size_hint_y: 1.0
+
+            Button:
+                text: "🎷 ARRANGEMENT MODE\n\n(Maestro: MP3-to-MIDI & Style Arrangement)"
+                font_size: '16sp'
+                halign: 'center'
+                valign: 'middle'
+                text_size: self.size
+                background_color: (0.15, 0.65, 0.45, 1)
+                disabled: app.active_role != 'Admin'
+                opacity: 1 if app.active_role == 'Admin' else 0
+                size_hint_y: 1 if app.active_role == 'Admin' else 0
+                on_press: root.select_arrangement()
+
+            Button:
+                text: "🎼 COMPOSITION MODE\n\n(Create a new song composition)"
+                font_size: '16sp'
+                halign: 'center'
+                valign: 'middle'
+                text_size: self.size
+                background_color: (0.15, 0.55, 0.85, 1)
+                on_press: root.select_composition()
+
+            Button:
+                text: "📋 Dashboard, Assigned Parts & Schedules"
+                font_size: '15sp'
+                size_hint_y: None
+                height: 55
+                background_color: (0.3, 0.3, 0.35, 1)
+                on_press: root.select_dashboard()
+
+        Button:
+            text: 'Log Out'
+            size_hint_y: None
+            height: 45
+            background_color: (0.8, 0.2, 0.2, 1)
+            on_press: root.logout()
+
+<CompositionWizardScreen>:
+    name: 'composition_wizard'
+    ScrollView:
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 20
+            spacing: 12
+            size_hint_y: None
+            height: self.minimum_height
+
+            Label:
+                text: '🎼 Maestro Score Wizard' if app.active_role == 'Admin' else '🎼 Staff Song Composition'
+                font_size: '22sp'
+                bold: True
+                size_hint_y: None
+                height: 40
+
+            Label:
+                text: '1. Score Information'
+                bold: True
+                size_hint_y: None
+                height: 25
+                halign: 'left'
+                text_size: self.size
+            TextInput:
+                id: comp_title
+                hint_text: 'Composition Title (e.g. Symphony No. 1)'
+                multiline: False
+                size_hint_y: None
+                height: 40
+            TextInput:
+                id: comp_composer
+                hint_text: 'Composer / Arranger'
+                multiline: False
+                size_hint_y: None
+                height: 40
+
+            Label:
+                text: '2. Instrumentation & Staves'
+                bold: True
+                size_hint_y: None
+                height: 25
+                halign: 'left'
+                text_size: self.size
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                spacing: 10
+                Spinner:
+                    id: inst_selector
+                    text: 'Select Instrument'
+                    values: ['Trumpet Section', 'Clarinet Section', 'Flute', 'Violin', 'Piano']
+                Button:
+                    text: 'Add Staff'
+                    size_hint_x: None
+                    width: '100dp'
+                    on_press: root.add_instrument(inst_selector.text)
+                Button:
+                    text: 'Clear'
+                    size_hint_x: None
+                    width: '70dp'
+                    background_color: (0.8, 0.2, 0.2, 1)
+                    on_press: root.clear_instruments()
+            Label:
+                id: selected_inst_label
+                text: 'Instruments: None selected'
+                size_hint_y: None
+                height: 25
+                color: (0.2, 0.8, 1, 1)
+
+            Label:
+                text: '3. Time Signature & Tempo'
+                bold: True
+                size_hint_y: None
+                height: 25
+                halign: 'left'
+                text_size: self.size
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                spacing: 10
+                Spinner:
+                    id: comp_time_sig
+                    text: '4/4'
+                    values: ['4/4', '3/4', '2/4', '6/8', '5/4']
+                TextInput:
+                    id: comp_bpm
+                    hint_text: 'Tempo (BPM)'
+                    text: '120'
+                    input_filter: 'int'
+                    multiline: False
+
+            Label:
+                text: '4. Key Signature'
+                bold: True
+                size_hint_y: None
+                height: 25
+                halign: 'left'
+                text_size: self.size
+            Spinner:
+                id: comp_key_sig
+                text: 'C Major / A Minor'
+                values: ['C Major / A Minor', 'G Major (1#)', 'D Major (2#)', 'A Major (3#)', 'E Major (4#)', 'F Major (1b)', 'Bb Major (2b)', 'Eb Major (3b)', 'Ab Major (4b)']
+                size_hint_y: None
+                height: 40
+
+            Label:
+                text: '5. Measures & Pickup'
+                bold: True
+                size_hint_y: None
+                height: 25
+                halign: 'left'
+                text_size: self.size
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                spacing: 10
+                TextInput:
+                    id: comp_measures
+                    hint_text: 'Number of Measures'
+                    text: '32'
+                    input_filter: 'int'
+                    multiline: False
+                BoxLayout:
+                    orientation: 'horizontal'
+                    Label:
+                        text: 'Pickup Measure?'
+                    CheckBox:
+                        id: comp_pickup
+
+            Label:
+                id: wizard_status
+                text: ''
+                color: (0.2, 0.8, 0.4, 1)
+                size_hint_y: None
+                height: 25
+
+            Button:
+                text: '✨ Create Blank Score Staves'
+                size_hint_y: None
+                height: 50
+                background_color: (0.15, 0.65, 0.35, 1)
+                on_press: root.generate_blank_composition()
+
+            Button:
+                text: 'Back'
+                size_hint_y: None
+                height: 40
+                background_color: (0.5, 0.5, 0.5, 1)
+                on_press: root.manager.current = 'admin_dashboard' if app.active_role == 'Admin' else 'dashboard'
+
+<DashboardScreen>:
+    name: 'dashboard'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [25, 18, 25, 18]
+        spacing: 10
+
+        Label:
+            text: 'HarmoniFlow Staff & Member Module' if app.active_role != 'Admin' else 'HarmoniFlow Dashboard'
+            font_size: '23sp'
+            bold: True
+            size_hint_y: None
+            height: 42
+
+        Label:
+            text: '🛡️ Screenshot Protection Active — Personal Compositions, Practice Schedules & Assigned Parts' if app.active_role != 'Admin' else 'Maestro Workspace'
+            size_hint_y: None
+            height: 24
+            color: (0.3, 0.85, 0.6, 1) if app.active_role != 'Admin' else (0.7, 0.7, 0.7, 1)
+
+        # Staff / Member quick actions: New Song Composition & Practice Schedules
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 10
+            size_hint_y: None
+            height: 50
+
+            Button:
+                text: '🎼 New Song Composition'
+                font_size: '14sp'
+                bold: True
+                background_color: (0.15, 0.55, 0.85, 1)
+                on_press: root.navigate_to_note_generator()
+
+            Button:
+                text: '🗓️ Practice Schedules'
+                font_size: '14sp'
+                bold: True
+                background_color: (0.2, 0.65, 0.45, 1)
+                on_press: root.navigate_to_schedules()
+
+        # Maestro-only tools (hidden and disabled for Members/Staff)
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 8
+            size_hint_y: None
+            height: 110 if app.active_role == 'Admin' else 0
+            opacity: 1 if app.active_role == 'Admin' else 0
+            disabled: app.active_role != 'Admin'
+
+            Button:
+                text: 'MP3 to MIDI & Style Arrangement'
+                font_size: '15sp'
+                bold: True
+                size_hint_y: None
+                height: 50 if app.active_role == 'Admin' else 0
+                on_press: root.navigate_to_audio_converter()
+
+            Button:
+                text: 'Maestro Portal'
+                font_size: '15sp'
+                bold: True
+                size_hint_y: None
+                height: 50 if app.active_role == 'Admin' else 0
+                on_press: root.manager.current = 'admin_dashboard'
+
+        Label:
+            text: 'My Assigned Parts & Personal Compositions:'
+            bold: True
+            halign: 'left'
+            text_size: self.size
+            size_hint_y: None
+            height: 24
+
+        ScrollView:
+            size_hint_y: 1.0
+            BoxLayout:
+                id: assigned_parts_list
+                orientation: 'vertical'
+                spacing: 8
+                size_hint_y: None
+                height: self.minimum_height
+
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 10
+            size_hint_y: None
+            height: 48
+
+            Button:
+                text: 'Profile'
+                font_size: '15sp'
+                background_color: (0.2, 0.5, 0.75, 1)
+                on_press: root.navigate_to_profile()
+
+            Button:
+                text: 'Refresh'
+                font_size: '15sp'
+                background_color: (0.25, 0.6, 0.45, 1)
+                on_press: root.on_enter()
+
+            Button:
+                text: 'Log Out'
+                font_size: '15sp'
+                bold: True
+                background_color: (0.8, 0.2, 0.2, 1)
+                on_press: root.logout()
+
+<PracticeScheduleScreen>:
+    name: 'practice_schedules'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 12
+
+        Label:
+            text: '🗓️ Ensemble Practice Schedules'
+            font_size: '22sp'
+            bold: True
+            size_hint_y: None
+            height: 40
+
+        Label:
+            id: schedule_status
+            text: ''
+            color: (0.2, 0.85, 0.45, 1)
+            size_hint_y: None
+            height: 25
+
+        # Maestro-only schedule creation form
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 8
+            size_hint_y: None
+            height: 268 if app.active_role == 'Admin' else 0
+            opacity: 1 if app.active_role == 'Admin' else 0
+            disabled: app.active_role != 'Admin'
+
+            TextInput:
+                id: sched_title
+                hint_text: 'Rehearsal Title (e.g. Aerosmith - I Don\'t Wanna Miss a Thing)'
+                multiline: False
+                size_hint_y: None
+                height: 38
+            BoxLayout:
+                spacing: 8
+                size_hint_y: None
+                height: 38
+                Button:
+                    id: sched_date_btn
+                    text: '📅 Select Date (YYYY-MM-DD)'
+                    background_color: (0.2, 0.45, 0.75, 1)
+                    on_press: root.open_calendar_picker()
+                TextInput:
+                    id: sched_time
+                    hint_text: 'Time (e.g. 16:00)'
+                    multiline: False
+            BoxLayout:
+                spacing: 8
+                size_hint_y: None
+                height: 38
+                TextInput:
+                    id: sched_location
+                    hint_text: 'Venue / Room'
+                    multiline: False
+                TextInput:
+                    id: sched_notes
+                    hint_text: 'Pieces / Focus Notes'
+                    multiline: False
+            BoxLayout:
+                spacing: 8
+                size_hint_y: None
+                height: 38
+                Button:
+                    text: '📄 Attach Arranged / Score PDF'
+                    size_hint_x: 0.45
+                    background_color: (0.25, 0.5, 0.65, 1)
+                    on_press: root.open_pdf_attachment_picker()
+                Label:
+                    id: sched_pdf_label
+                    text: 'No PDF attached'
+                    size_hint_x: 0.55
+                    color: (0.75, 0.85, 0.9, 1)
+                    halign: 'left'
+                    valign: 'middle'
+                    text_size: self.size
+            Button:
+                text: '+ Publish Practice Schedule'
+                size_hint_y: None
+                height: 42
+                background_color: (0.15, 0.6, 0.35, 1)
+                on_press: root.add_schedule()
+
+        ScrollView:
+            size_hint_y: 1.0
+            BoxLayout:
+                id: schedule_list_box
+                orientation: 'vertical'
+                spacing: 8
+                size_hint_y: None
+                height: self.minimum_height
+
+        Button:
+            text: 'Back'
+            size_hint_y: None
+            height: 45
+            background_color: (0.4, 0.4, 0.45, 1)
+            on_press: root.manager.current = 'admin_dashboard' if app.active_role == 'Admin' else 'dashboard'
+
+<AudioConverterScreen>:
+    name: 'audio_converter'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 15
+        Label:
+            text: 'Maestro MP3 -> MIDI -> AI Style Arrangement -> Notesheet'
+            font_size: '21sp'
+            bold: True
+            size_hint_y: None
+            height: 50
+
+        Label:
+            text: 'Convert MP3 to base MIDI, arrange into a style, and render the notesheet automatically.'
+            size_hint_y: None
+            height: 30
+            color: (0.7, 0.7, 0.7, 1)
+
+        BoxLayout:
+            size_hint_y: None
+            height: 44
+            spacing: 10
+            Label:
+                text: 'Target Arrangement Style:'
+                size_hint_x: 0.45
+            Spinner:
+                id: arrangement_style_spinner
+                text: 'Marching Band'
+                values: ['Drum and Bugle Corps', 'Symphony Orchestra', 'String Quintet', 'Marching Band']
+                size_hint_x: 0.55
+
+        Button:
+            text: '📁 Select Audio or MIDI File (.mp3 / .wav / .mid)'
+            size_hint_y: None
+            height: 50
+            background_color: (0.2, 0.7, 0.4, 1)
+            on_press: root.open_file_picker()
+
+        Label:
+            id: conversion_log
+            text: 'Choose an arrangement style and select an MP3 or MIDI file.'
+            halign: 'center'
+            valign: 'middle'
+            text_size: self.size
+
+        Button:
+            id: render_sheet_btn
+            text: '🎼 Render Notesheet'
+            size_hint_y: None
+            height: 50
+            disabled: True
+            background_color: (0.15, 0.55, 0.85, 1)
+            on_press: root.render_notesheet_from_midi()
+
+        Button:
+            text: 'Return to Maestro Portal'
+            size_hint_y: None
+            height: 45
+            on_press: root.manager.current = 'admin_dashboard' if app.active_role == 'Admin' else 'dashboard'
+
+<NoteGeneratorScreen>:
+    name: 'note_generator'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 15
+        Label:
+            text: 'MIDI Sheet Notation Generator'
+            font_size: '22sp'
+            bold: True
+            size_hint_y: None
+            height: 50
+
+        Label:
+            text: 'Select Target Instrument Layout Filter:'
+            size_hint_y: None
+            height: 20
+            color: (0.2, 0.7, 1, 1)
+            halign: 'left'
+            text_size: self.size
+
+        Spinner:
+            id: instrument_picker
+            text: 'All Instruments'
+            values: ['All Instruments', 'Trumpet Section', 'Clarinet Section']
+            size_hint_y: None
+            height: 44
+            background_color: (0.15, 0.45, 0.75, 1)
+
+        Button:
+            text: '📁 Load Target MIDI File'
+            size_hint_y: None
+            height: 50
+            background_color: (0.2, 0.6, 0.8, 1)
+            on_press: root.open_midi_picker()
+
+        Label:
+            id: generation_log
+            text: 'Awaiting MIDI file link context...'
+            halign: 'center'
+            valign: 'middle'
+            text_size: self.size
+
+        Button:
+            id: execute_orchestration_btn
+            text: 'Generate Instrument Notesheet'
+            disabled: True
+            size_hint_y: None
+            height: 45
+            background_color: (0.2, 0.7, 0.4, 1)
+            on_press: root.trigger_sheet_orchestration()
+
+        Button:
+            text: 'Return to Maestro Portal'
+            size_hint_y: None
+            height: 45
+            on_press: root.manager.current = 'admin_dashboard' if app.active_role == 'Admin' else 'dashboard'
+
+<ProfileScreen>:
+    name: 'profile'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 30
+        spacing: 15
+
+        Label:
+            text: 'Member Profile Workspace'
+            font_size: '22sp'
+            bold: True
+            size_hint_y: None
+            height: 50
+
+        Label:
+            text: 'Active Session Metadata'
+            color: (0.7, 0.7, 0.7, 1)
+            size_hint_y: None
+            height: 25
+
+        GridLayout:
+            cols: 2
+            spacing: 12
+            padding: [10, 10]
+
+            Label:
+                text: 'User Account:'
+                halign: 'left'
+                text_size: self.size
+            Label:
+                text: root.user_username
+                halign: 'right'
+                text_size: self.size
+                bold: True
+
+            Label:
+                text: 'Full Name:'
+                halign: 'left'
+                text_size: self.size
+            Label:
+                text: root.user_fullname
+                halign: 'right'
+                text_size: self.size
+
+            Label:
+                text: 'Member Rank / Skill:'
+                halign: 'left'
+                text_size: self.size
+            Label:
+                text: root.user_rank
+                halign: 'right'
+                text_size: self.size
+
+            Label:
+                text: 'Instruments Played:'
+                halign: 'left'
+                text_size: self.size
+            Label:
+                text: root.user_instruments
+                halign: 'right'
+                text_size: self.size
+
+            Label:
+                text: 'Date of Birth:'
+                halign: 'left'
+                text_size: self.size
+            Label:
+                text: root.user_birthdate
+                halign: 'right'
+                text_size: self.size
+                bold: True
+                color: (0.2, 0.7, 1, 1)
+
+        Button:
+            text: 'Return to Dashboard'
+            size_hint_y: None
+            height: 50
+            background_color: (0.15, 0.45, 0.75, 1)
+            on_press: root.manager.current = 'admin_dashboard' if app.active_role == 'Admin' else 'dashboard'
+
+<SheetViewerScreen>:
+    name: 'sheet_viewer'
+    BoxLayout:
+        orientation: 'vertical'
+
+        BoxLayout:
+            size_hint_y: None
+            height: '45dp'
+            padding: 5
+            spacing: 10
+            Button:
+                text: "<- Back"
+                size_hint_x: None
+                width: '120dp'
+                background_color: (0.2, 0.6, 0.8, 1)
+                on_press: root.manager.current = 'admin_dashboard' if app.active_role == 'Admin' else 'dashboard'
+            Label:
+                text: "HarmoniFlow Maestro Score Studio" if app.active_role == 'Admin' else "HarmoniFlow Protected Part Viewer"
+                bold: True
+            Button:
+                text: "Save Score As..."
+                size_hint_x: None
+                width: '150dp'
+                background_color: (0.15, 0.65, 0.35, 1) if app.active_role == 'Admin' else (0, 0, 0, 0)
+                opacity: 1 if app.active_role == 'Admin' else 0
+                disabled: app.active_role != 'Admin'
+                on_press: root.open_export_dialog()
+
+        BoxLayout:
+            id: native_score_container
+            orientation: 'horizontal'
+            size_hint_y: 1.0
+
+<AdminDashboardScreen>:
+    name: 'admin_dashboard'
+    ScrollView:
+        do_scroll_x: False
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 25
+            spacing: 14
+            size_hint_y: None
+            height: self.minimum_height
+            canvas.before:
+                Color:
+                    rgba: (0.12, 0.12, 0.16, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            Label:
+                text: "MAESTRO / ADMINISTRATOR CONTROL PORTAL"
+                font_size: '22sp'
+                bold: True
+                color: (0.9, 0.65, 0.2, 1)
+                size_hint_y: None
+                height: 40
+
+            Label:
+                id: admin_status
+                text: "System Ready. Select a Maestro tool, manage schedules, or send notes below."
+                color: (0.7, 0.85, 0.75, 1)
+                size_hint_y: None
+                height: 30
+
+            Label:
+                text: "1. Song Composition, Arrangement & Practice Schedules"
+                halign: 'left'
+                text_size: self.size
+                bold: True
+                color: (0.2, 0.8, 1, 1)
+                size_hint_y: None
+                height: 28
+
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: 10
+                size_hint_y: None
+                height: 55
+
+                Button:
+                    text: "🎷 MP3 -> MIDI -> AI Style\n(Corps / Orchestra / Quintet)"
+                    halign: 'center'
+                    background_color: (0.15, 0.6, 0.45, 1)
+                    on_press: root.manager.current = 'audio_converter'
+
+                Button:
+                    text: "🎼 New Composition\n(Master Score Wizard)"
+                    halign: 'center'
+                    background_color: (0.15, 0.5, 0.85, 1)
+                    on_press: root.manager.current = 'composition_wizard'
+
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: 10
+                size_hint_y: None
+                height: 46
+
+                Button:
+                    text: "📄 Orchestrate MIDI"
+                    background_color: (0.25, 0.45, 0.7, 1)
+                    on_press: root.manager.current = 'note_generator'
+
+                Button:
+                    text: "🗓️ Practice Schedules"
+                    background_color: (0.25, 0.6, 0.4, 1)
+                    on_press: root.manager.current = 'practice_schedules'
+
+            Label:
+                text: "2. Send / Assign Score Part to Staff or Member"
+                halign: 'left'
+                text_size: self.size
+                bold: True
+                color: (0.9, 0.65, 0.2, 1)
+                size_hint_y: None
+                height: 28
+
+            TextInput:
+                id: assign_project_id
+                hint_text: "Target Project ID (e.g., 1)"
+                multiline: False
+                size_hint_y: None
+                height: 42
+
+            TextInput:
+                id: assign_username
+                hint_text: "Staff / Member Username"
+                multiline: False
+                size_hint_y: None
+                height: 42
+
+            TextInput:
+                id: assign_part
+                hint_text: "Assigned Score Instrument (e.g., Trumpet Section)"
+                multiline: False
+                size_hint_y: None
+                height: 42
+
+            Button:
+                text: "Send / Commit Score Assignment"
+                size_hint_y: None
+                height: 48
+                background_color: (0.15, 0.6, 0.35, 1)
+                on_press: root.execute_group_assignment()
+
+            Button:
+                text: "Log Out"
+                size_hint_y: None
+                height: 45
+                background_color: (0.8, 0.2, 0.2, 1)
+                on_press: root.logout()
