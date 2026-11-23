@@ -34,9 +34,9 @@ jobs:
           path: |
             ~/.buildozer
             .buildozer
-          key: buildozer-android-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          key: buildozer-android-v3-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
           restore-keys: |
-            buildozer-android-${{ runner.os }}-
+            buildozer-android-v3-${{ runner.os }}-
 
       - name: Build APK with Buildozer
         run: buildozer android debug
